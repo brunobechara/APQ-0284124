@@ -1,14 +1,7 @@
-project:
-  type: default
-  title: "Painel TSO — Saúde e Trabalho na Mineração"
-  output-dir: _output
-  render:
-    - dashboard.qmd
-
-execute:
-  echo: false
-  warning: false
-  message: false
-  freeze: auto
-
-lang: pt
+format:
+  dashboard:
+    orientation: rows
+    theme: cosmo
+    expandable: true
+    scrolling: true
+server: shiny

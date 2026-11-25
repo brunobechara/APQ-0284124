@@ -3,9 +3,10 @@ title: "Enquete Saúde Operária Metabase/UFMG"
 format:
   dashboard:
     orientation: rows
-    theme: [cosmo, custom.scss]
+    theme: cosmo
     expandable: true
-    scrolling: false
+    scrolling: true
+server: shiny
 lang: pt
 execute:
   echo: false
@@ -15,6 +16,7 @@ execute:
 
 ```{r}
 #| label: setup
+#| context: setup
 #| include: false
 
 source("00_setup.R")
@@ -33,47 +35,199 @@ pct_marcou <- function(d, prefixo, indices) {
 }
 ```
 
+# {.sidebar}
+
+```{r}
+#| echo: false
+
+shiny::selectInput(
+  "f_empresa", "Empresa",
+  choices = c("Todos", sort(unique(as.character(base$empresa))))
+)
+
+shiny::selectInput(
+  "f_setor", "Setor/área",
+  choices = c("Todos", sort(unique(as.character(base$setor))))
+)
+
+shiny::selectInput(
+  "f_jornada", "Jornada",
+  choices = c("Todos", sort(unique(as.character(base$jornada))))
+)
+
+shiny::selectInput(
+  "f_genero", "Gênero",
+  choices = c("Todos", sort(unique(as.character(base$genero))))
+)
+
+shiny::selectInput(
+  "f_raca", "Raça/cor",
+  choices = c("Todos", sort(unique(as.character(base$raca))))
+)
+
+shiny::selectInput(
+  "f_idade", "Faixa etária",
+  choices = c("Todos", sort(unique(as.character(base$faixa_etaria))))
+)
+
+shiny::selectInput(
+  "f_tempo", "Tempo na mineração",
+  choices = c("Todos", sort(unique(as.character(base$faixa_tempo))))
+)
+
+shiny::selectInput(
+  "f_municipio", "Município de residência",
+  choices = c("Todos", sort(unique(as.character(base$municipio))))
+)
+
+shiny::textOutput("n_filtrados")
+
+shiny::actionButton(
+  "limpar_filtros",
+  "Limpar filtros",
+  class = "btn-primary"
+)
+```
+
+```{r}
+#| context: server
+
+shiny::observeEvent(input$limpar_filtros, {
+  shiny::updateSelectInput(session, "f_empresa", selected = "Todos")
+  shiny::updateSelectInput(session, "f_setor", selected = "Todos")
+  shiny::updateSelectInput(session, "f_jornada", selected = "Todos")
+  shiny::updateSelectInput(session, "f_genero", selected = "Todos")
+  shiny::updateSelectInput(session, "f_raca", selected = "Todos")
+  shiny::updateSelectInput(session, "f_idade", selected = "Todos")
+  shiny::updateSelectInput(session, "f_tempo", selected = "Todos")
+  shiny::updateSelectInput(session, "f_municipio", selected = "Todos")
+})
+
+base_filtrada <- shiny::reactive({
+
+  d <- base
+
+  filtros <- list(
+    empresa = input$f_empresa,
+    setor = input$f_setor,
+    jornada = input$f_jornada,
+    genero = input$f_genero,
+    raca = input$f_raca,
+    faixa_etaria = input$f_idade,
+    faixa_tempo = input$f_tempo,
+    municipio = input$f_municipio
+  )
+
+  for (campo in names(filtros)) {
+    valor <- filtros[[campo]]
+
+    if (!is.null(valor) && valor != "Todos") {
+      d <- d[
+        !is.na(d[[campo]]) & d[[campo]] == valor,
+        ,
+        drop = FALSE
+      ]
+    }
+  }
+
+  d
+})
+
+output$n_filtrados <- shiny::renderText({
+  paste(
+    "Participantes selecionados:",
+    nrow(base_filtrada())
+  )
+})
+
+output$vb_participantes <- shiny::renderUI({
+  d <- base_filtrada()
+  bslib::value_box(
+    title = "Participantes",
+    value = nrow(d),
+    theme = "primary"
+  )
+})
+
+output$vb_completos <- shiny::renderUI({
+  d <- base_filtrada()
+  bslib::value_box(
+    title = "Completos",
+    value = sum(d$enquete_complete == "Completa", na.rm = TRUE),
+    theme = "light"
+  )
+})
+
+output$vb_operacao <- shiny::renderUI({
+  d <- base_filtrada()
+  bslib::value_box(
+    title = "Setor Operação: Mina",
+    value = vb(pct_em(d, "setor", "Operação: mina"), "pct"),
+    theme = "light"
+  )
+})
+
+output$vb_idade <- shiny::renderUI({
+  d <- base_filtrada()
+  bslib::value_box(
+    title = "Idade mediana",
+    value = paste0(vb(stats::median(d$idade, na.rm = TRUE), "int"), " anos"),
+    theme = "light"
+  )
+})
+
+output$vb_tempo <- shiny::renderUI({
+  d <- base_filtrada()
+  bslib::value_box(
+    title = "Tempo na mineração",
+    value = paste0(vb(stats::median(d$anos_mineracao, na.rm = TRUE), "num"), " anos"),
+    theme = "light"
+  )
+})
+
+output$vb_perder <- shiny::renderUI({
+  d <- base_filtrada()
+  bslib::value_box(
+    title = "Medo de perder o emprego",
+    value = vb(pct_em(d, "perder", c("Sim")), "pct"),
+    theme = "danger"
+  )
+})
+
+```
 
 # Panorama
 
 ## Indicadores {height="15%"}
 
 ```{r}
-#| content: valuebox
-#| title: "Participantes"
-list(color = "primary", value = nrow(base))
+shiny::uiOutput("vb_participantes")
 ```
 
 ```{r}
-#| content: valuebox
 #| title: "Completos"
-list(color = "light", value = sum(base$enquete_complete == "Completa", na.rm = TRUE))
+shiny::uiOutput("vb_completos")
 ```
 
 ```{r}
-#| content: valuebox
 #| title: "Setor Operação: Mina"
-list(color = "light", value = vb(pct_em(base, "setor", "Operação: mina"), "pct"))
+shiny::uiOutput("vb_operacao")
 ```
 
 ```{r}
-#| content: valuebox
 #| title: "Idade mediana"
-list(color = "light", value = paste0(vb(stats::median(base$idade, na.rm = TRUE), "int"), " anos"))
+shiny::uiOutput("vb_idade")
 ```
 
 ```{r}
-#| content: valuebox
 #| title: "Tempo na mineração"
-list(color = "light", value = paste0(vb(stats::median(base$anos_mineracao, na.rm = TRUE), "num"), " anos"))
+shiny::uiOutput("vb_tempo")
 ```
 
 ```{r}
-#| content: valuebox
 #| title: "Medo de perder o emprego"
-list(color = "danger", value = vb(pct_em(base, "perder", c("Sim")), "pct"))
+shiny::uiOutput("vb_perder")
 ```
-
 
 ## {height="45%"}
 
@@ -836,7 +990,9 @@ graf_barras(base, "avaliacao", cor = CORES$frio,
 ## Preenchimento e microdados {.tabset}
 
 ```{r}
-#| title: "Microdados"
+#| eval: false
+#| include: false
+#| title: Microdados
 cols <- c("record_id", "empresa", "setor", "vinculo", "jornada", "genero",
           "raca", "faixa_etaria", "faixa_tempo", "municipio", "saude",
           "esgotamento", "assediomoral", "idx_riscos", "idx_cargas",
