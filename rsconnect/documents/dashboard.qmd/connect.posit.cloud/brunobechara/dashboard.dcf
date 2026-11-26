@@ -1,0 +1,11 @@
+name: dashboard
+title:
+username: brunobechara
+account: brunobechara
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a21596-bd7e-5a6c-091a-bdb12531d8c6
+appGuid:
+bundleId:
+url: https://connect.posit.cloud/brunobechara/content/01a21596-bd7e-5a6c-091a-bdb12531d8c6
+version: 1

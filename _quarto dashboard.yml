@@ -1,7 +1,0 @@
-format:
-  dashboard:
-    orientation: rows
-    theme: cosmo
-    expandable: true
-    scrolling: true
-server: shiny

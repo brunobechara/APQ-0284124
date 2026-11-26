@@ -1,0 +1,43 @@
+/*-- scss:rules --*/
+
+/* Adaptação geral */
+html, body {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Evita que gráficos ultrapassem os limites */
+.cell-output,
+.html-widget,
+.plotly,
+.plot-container {
+  max-width: 100% !important;
+}
+
+/* Gráficos responsivos */
+.plotly.html-widget {
+  width: 100% !important;
+}
+
+/* Tablets e telas intermediárias */
+@media (max-width: 992px) {
+  .dashboard {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+/* Celulares */
+@media (max-width: 576px) {
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  .card {
+    margin-bottom: 10px;
+  }
+}

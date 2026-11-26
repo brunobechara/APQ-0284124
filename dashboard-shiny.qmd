@@ -1,0 +1,882 @@
+---
+title: "Enquete Saúde Operária Metabase/UFMG"
+subtitle: "Painel Interativo"
+format:
+  dashboard:
+    orientation: rows
+    theme: cosmo
+    expandable: true
+server: shiny
+lang: pt
+---
+
+```{r}
+#| context: setup
+#| include: false
+
+library(shiny)
+library(bslib)
+
+source("00_setup.R")
+source("01_dados.R")
+source("02_helpers.R")
+
+opcoes <- function(v) levels(droplevels(factor(stats::na.omit(base[[v]]))))
+```
+
+#  {.sidebar width="220px"}
+
+PROJETO METABASE-UFMG
+
+**Filtros**
+
+```{r}
+selectizeInput("empresa", "Empresa", choices = opcoes("empresa"),
+               multiple = TRUE, options = list(placeholder = "Todas"))
+selectizeInput("setor", "Setor/área", choices = opcoes("setor"),
+               multiple = TRUE, options = list(placeholder = "Todos"))
+selectizeInput("jornada", "Jornada", choices = opcoes("jornada"),
+               multiple = TRUE, options = list(placeholder = "Todas"))
+selectizeInput("genero", "Gênero", choices = opcoes("genero"),
+               multiple = TRUE, options = list(placeholder = "Todos"))
+selectizeInput("raca", "Raça/cor", choices = opcoes("raca"),
+               multiple = TRUE, options = list(placeholder = "Todas"))
+selectizeInput("faixa_etaria", "Faixa etária", choices = opcoes("faixa_etaria"),
+               multiple = TRUE, options = list(placeholder = "Todas"))
+selectizeInput("faixa_tempo", "Tempo na mineração", choices = opcoes("faixa_tempo"),
+               multiple = TRUE, options = list(placeholder = "Todos"))
+selectizeInput("municipio", "Município de residência", choices = opcoes("municipio"),
+               multiple = TRUE, options = list(placeholder = "Todos"))
+checkboxInput("so_completos", "Apenas questionários completos", FALSE)
+actionButton("limpar", "Limpar filtros", class = "btn-sm btn-outline-secondary")
+hr()
+uiOutput("resumo_filtro")
+```
+
+# Panorama
+
+## Indicadores {height="15%"}
+
+```{r}
+uiOutput("kpi_panorama")
+```
+
+##  {height="45%"}
+
+###  {width="35%"}
+
+```{r}
+#| title: "Respostas por mês de coleta"
+plotly::plotlyOutput("g_serie")
+```
+
+###  {.tabset width="65%"}
+
+```{r}
+#| title: "Gênero"
+plotly::plotlyOutput("g_genero")
+```
+
+```{r}
+#| title: "Raça/cor"
+plotly::plotlyOutput("g_raca")
+```
+
+```{r}
+#| title: "Faixa etária"
+plotly::plotlyOutput("g_faixa_etaria")
+```
+
+```{r}
+#| title: "Idade (mediana)"
+plotly::plotlyOutput("g_idade")
+```
+
+```{r}
+#| title: "Orientação sexual"
+plotly::plotlyOutput("g_osexual")
+```
+
+```{r}
+#| title: "Município de residência"
+plotly::plotlyOutput("g_municipio")
+```
+
+```{r}
+#| title: "Tempo de deslocamento"
+plotly::plotlyOutput("g_deslocamento")
+```
+
+##  {.tabset height="45%"}
+
+```{r}
+#| title: "Empresa"
+plotly::plotlyOutput("g_empresa")
+```
+
+```{r}
+#| title: "Setor/Área"
+plotly::plotlyOutput("g_setor")
+```
+
+```{r}
+#| title: "Vínculo"
+plotly::plotlyOutput("g_vinculo")
+```
+
+```{r}
+#| title: "Tempo na mineração (mediana)"
+plotly::plotlyOutput("g_tempo_min")
+```
+
+```{r}
+#| title: "Medo de perder o emprego"
+plotly::plotlyOutput("g_perder")
+```
+
+# Salário e benefícios
+
+## Indicadores {height="15%"}
+
+```{r}
+uiOutput("kpi_salario")
+```
+
+##  {height="45%"}
+
+```{r}
+#| title: "Posição sobre a situação financeira operária por empresa"
+plotly::plotlyOutput("g_fin_empresa")
+```
+
+```{r}
+#| title: "Posição sobre o salário, adicionais e benefícios"
+plotly::plotlyOutput("g_remuneracao")
+```
+
+```{r}
+#| title: "Posição sobre regras e gestão de pessoal"
+plotly::plotlyOutput("g_gestao")
+```
+
+##  {.tabset height="45%"}
+
+```{r}
+#| title: "Situação financeira da família"
+plotly::plotlyOutput("g_situacaofi")
+```
+
+```{r}
+#| title: "Salário na renda familiar"
+plotly::plotlyOutput("g_renda")
+```
+
+```{r}
+#| title: "Empréstimos para contas do dia a dia"
+plotly::plotlyOutput("g_emprestimo")
+```
+
+# Processos de trabalho
+
+## Indicadores {height="15%"}
+
+```{r}
+uiOutput("kpi_processo")
+```
+
+## 
+
+###  {.tabset width="50%"}
+
+```{r}
+#| title: "Posição sobre aspectos dos processos de trabalho"
+plotly::plotlyOutput("g_condicoes")
+```
+
+###  {.tabset}
+
+```{r}
+#| title: "Situações vivenciadas"
+plotly::plotlyOutput("g_cargas")
+```
+
+```{r}
+#| title: "Situações vivenciadas de violências e discriminações"
+plotly::plotlyOutput("g_violencias")
+```
+
+### 
+
+```{r}
+#| title: "Automação e tecnologias no trabalho"
+plotly::plotlyOutput("g_tecnologia")
+```
+
+## 
+
+###  {.tabset}
+
+```{r}
+#| title: "Tipo de jornada"
+plotly::plotlyOutput("g_jornada")
+```
+
+```{r}
+#| title: "Modalidade de trabalho"
+plotly::plotlyOutput("g_modalidade")
+```
+
+###  {.tabset}
+
+```{r}
+#| title: "Relacionamento com"
+plotly::plotlyOutput("g_trato")
+```
+
+```{r}
+#| title: "Clima organizacional"
+plotly::plotlyOutput("g_clima")
+```
+
+```{r}
+#| title: "Clima por empresa"
+plotly::plotlyOutput("g_clima_empresa")
+```
+
+```{r}
+#| title: "Violências entre gêneros"
+plotly::plotlyOutput("g_viol_genero")
+```
+
+```{r}
+#| title: "Violências entre raça/cor"
+plotly::plotlyOutput("g_viol_raca")
+```
+
+### 
+
+```{r}
+#| title: "Como trabalham além da jornada"
+plotly::plotlyOutput("g_jornadasim")
+```
+
+# Nocividades
+
+## Indicadores {height="15%"}
+
+```{r}
+uiOutput("kpi_nocividades")
+```
+
+##  {.tabset height="75%"}
+
+```{r}
+#| title: "Distribuição das nocividades"
+plotly::plotlyOutput("g_riscos_100")
+```
+
+```{r}
+#| title: "Ranking das nocividades"
+plotly::plotlyOutput("g_rank_riscos")
+```
+
+```{r}
+#| title: "Nocividades por setor da produção"
+plotly::plotlyOutput("g_riscos_setor")
+```
+
+# Acidentes e Adoecimentos
+
+## Indicadores {height="15%"}
+
+```{r}
+uiOutput("kpi_acidentes")
+```
+
+##  {.tabset height="30%"}
+
+```{r}
+#| title: "Acidentes de trabalho"
+plotly::plotlyOutput("g_comunicacid")
+```
+
+```{r}
+#| title: "Houve registro de CAT?"
+plotly::plotlyOutput("g_cat")
+```
+
+```{r}
+#| title: "Identificação de outros acidentes"
+plotly::plotlyOutput("g_epi")
+```
+
+## 
+
+###  {.tabset width="65%"}
+
+```{r}
+#| title: "Sinais e sintomas no trabalho"
+plotly::plotlyOutput("g_sinais")
+```
+
+```{r}
+#| title: "Número por operário/a"
+plotly::plotlyOutput("g_nsinais")
+```
+
+```{r}
+#| title: "Adoecimentos/Doenças entre operários/as"
+plotly::plotlyOutput("g_morbidades")
+```
+
+```{r}
+#| title: "Ir trabalhar doente"
+plotly::plotlyOutput("g_irdoente")
+```
+
+```{r}
+#| title: "Uso de medicamentos controlados"
+plotly::plotlyOutput("g_motivo_uso")
+```
+
+```{r}
+#| title: "Uso de álcool e drogas"
+plotly::plotlyOutput("g_alcool")
+```
+
+```{r}
+#| title: "Relação do trabalho com tais usos"
+plotly::plotlyOutput("g_usodrogastrab")
+```
+
+```{r}
+#| title: "Afastamentos"
+plotly::plotlyOutput("g_afastamentos")
+```
+
+###  {width="25%"}
+
+```{r}
+#| title: "Relação do adoecimento com o trabalho na mina/usina"
+plotly::plotlyOutput("g_saudetrab")
+```
+
+# Saúde
+
+## Indicadores {height="18%"}
+
+```{r}
+uiOutput("kpi_saude")
+```
+
+## 
+
+###  {width="30%"}
+
+```{r}
+#| title: "Situação de saúde no último ano"
+plotly::plotlyOutput("g_saude_antes")
+```
+
+###  {.tabset width="70%"}
+
+```{r}
+#| title: "Saúde hoje"
+plotly::plotlyOutput("g_saude_unica")
+```
+
+```{r}
+#| title: "Sono, alimentação e moradia"
+plotly::plotlyOutput("g_saude")
+```
+
+## 
+
+###  {.tabset width="50%"}
+
+```{r}
+#| title: "Estratégias de autocuidado"
+plotly::plotlyOutput("g_estrategias")
+```
+
+```{r}
+#| title: "Horas semanais para tais cuidados"
+plotly::plotlyOutput("g_horas_cuidado")
+```
+
+```{r}
+#| title: "Atividades de cuidado e de vida pessoal"
+plotly::plotlyOutput("g_cuidado")
+```
+
+```{r}
+#| title: "Tarefas domésticas por gênero"
+plotly::plotlyOutput("g_casa_genero")
+```
+
+```{r}
+#| title: "Cuidado de filhos por gênero"
+plotly::plotlyOutput("g_filhos_genero")
+```
+
+```{r}
+#| title: "Jornada ideal para conciliar cuidados e vida pessoal"
+plotly::plotlyOutput("g_jornadacuidado")
+```
+
+###  {.tabset width="50%"}
+
+```{r}
+#| title: "Posição sobre a saúde ocupacional das empresas"
+plotly::plotlyOutput("g_saudeocup")
+```
+
+# Luta sindical pela saúde
+
+## Indicadores {height="15%"}
+
+```{r}
+uiOutput("kpi_vida")
+```
+
+## 
+
+### 
+
+```{r}
+#| title: "Sindicalização"
+plotly::plotlyOutput("g_sindical")
+```
+
+```{r}
+#| title: "Conhecimento sobre a Secretaria de Saúde e Segurança do Sindicato"
+plotly::plotlyOutput("g_diretoria")
+```
+
+### 
+
+```{r}
+#| title: "Sindicato na luta pela saúde"
+plotly::plotlyOutput("g_contribuicao")
+```
+
+```{r}
+#| title: "Avaliação da enquete"
+plotly::plotlyOutput("g_avaliacao")
+```
+
+# Dados
+
+## Preenchimento e microdados {.tabset}
+
+```{r}
+#| title: "Microdados"
+DT::DTOutput("t_micro")
+```
+
+```{r}
+#| title: "Notas metodológicas"
+uiOutput("notas")
+```
+
+```{r}
+#| context: server
+
+
+# ==========================================================================
+# 1. Filtros da barra lateral
+# ==========================================================================
+
+filtrar <- function(d, v, sel) {
+  if (is.null(sel) || !length(sel)) return(d)
+  d[!is.na(d[[v]]) & as.character(d[[v]]) %in% sel, , drop = FALSE]
+}
+
+vars_filtro <- c("empresa", "setor", "jornada", "genero", "raca",
+                 "faixa_etaria", "faixa_tempo", "municipio")
+
+dados_f <- reactive({
+  d <- base
+  for (v in vars_filtro) d <- filtrar(d, v, input[[v]])
+  if (isTRUE(input$so_completos)) {
+    d <- d[!is.na(d$enquete_complete) & d$enquete_complete == "Completa", ,
+           drop = FALSE]
+  }
+  d
+})
+
+observeEvent(input$limpar, {
+  for (v in vars_filtro) updateSelectizeInput(session, v, selected = character(0))
+  updateCheckboxInput(session, "so_completos", value = FALSE)
+})
+
+output$resumo_filtro <- renderUI({
+  n <- nrow(dados_f())
+  cor <- if (n < 20) "#C0392B" else "#0B6E4F"
+  htmltools::div(
+    style = "font-size:0.85rem;",
+    htmltools::strong(style = paste0("color:", cor, ";"),
+                      paste0(n, " de ", nrow(base), " participantes")),
+    htmltools::br(),
+    htmltools::span(
+      style = "color:#7B8794;",
+      if (n < 20) "Recorte pequeno: percentuais muito instáveis."
+      else "Percentuais excluem não respostas."
+    )
+  )
+})
+
+
+# ==========================================================================
+# 2. Indicadores (value boxes)
+# ==========================================================================
+
+# Percentual que marcou ao menos uma das opções de um bloco de caixas de seleção.
+# Denominador: quem respondeu ao bloco (marcou qualquer opção).
+pct_marcou <- function(d, prefixo, indices) {
+  todos <- grep(paste0("^", prefixo, "___[0-9]+$"), names(d), value = TRUE)
+  cols  <- intersect(paste0(prefixo, "___", indices), names(d))
+  if (!length(cols) || !nrow(d)) return(NA_real_)
+  respondeu <- rowSums(d[todos], na.rm = TRUE) > 0
+  if (!sum(respondeu)) return(NA_real_)
+  mean(rowSums(d[respondeu, cols, drop = FALSE], na.rm = TRUE) > 0)
+}
+
+linha_kpi <- function(caixas) {
+  do.call(bslib::layout_column_wrap,
+          c(list(width = 1 / length(caixas), fill = FALSE), caixas))
+}
+cx <- function(titulo, valor, tema = "light") {
+  bslib::value_box(title = titulo, value = valor, theme = tema)
+}
+
+output$kpi_panorama <- renderUI({
+  d <- dados_f()
+  linha_kpi(list(
+    cx("Participantes", nrow(d), "primary"),
+    cx("Completos", sum(d$enquete_complete == "Completa", na.rm = TRUE)),
+    cx("Setor Operação: Mina", vb(pct_em(d, "setor", "Operação: mina"), "pct")),
+    cx("Idade mediana",
+       paste0(vb(stats::median(d$idade, na.rm = TRUE), "int"), " anos")),
+    cx("Tempo na mineração",
+       paste0(vb(stats::median(d$anos_mineracao, na.rm = TRUE), "num"), " anos")),
+    cx("Medo de perder o emprego",vb(pct_em(d, "perder", c("Sim")), "pct"), "danger")
+  ))
+})
+
+output$kpi_salario <- renderUI({
+  d <- dados_f()
+  linha_kpi(list(
+    cx("Fizeram empréstimo",
+       vb(pct_em(d, "emprestimo", c("Sim, compromete boa parte da renda",
+                                    "Sim, afeta pouco a renda")), "pct"), "danger"),
+    cx("Salário como única fonte de renda familiar",
+       vb(pct_em(d, "renda", c("Única fonte de renda da família")), "pct"), "danger"),
+    cx("Salário ruim ou muito ruim",
+       vb(pct_em(d, "salario", c("Muito ruim", "Ruim")), "pct"), "danger"),
+    cx("Participação nos lucros (PLR)",
+       vb(pct_em(d, "plr", c("Muito ruim")), "pct"), "danger"),
+    cx("Situação financeira ruim ou muito ruim",
+       vb(pct_em(d, "situacaofi", c("Ruim", "Muito ruim")), "pct"), "warning"),
+    cx("Vale alimentação muito bom",
+       vb(pct_em(d, "valealiment", c("Muito bom/boa")), "pct"))
+  ))
+})
+
+output$kpi_processo <- renderUI({
+  d <- dados_f()
+  linha_kpi(list(
+    cx("Desvio de função",
+       vb(pct_em(d, "desviof", c("Às vezes", "Frequentemente", "Sempre")), "pct"), "danger"),
+    cx("Tecnologias substituem operários",
+       vb(pct_em(d, "emprego", c("Às vezes")), "pct"), "danger"),
+    cx("Esgotamento frequente",
+       vb(pct_em(d, "esgotamento", c("Frequentemente", "Sempre")), "pct"), "danger"),
+    cx("Assédio moral presente",
+       vb(pct_em(d, "assediomoral", c("Às vezes", "Frequentemente", "Sempre")), "pct"), "warning"),
+    cx("Misoginia presente",
+       vb(pct_em(d, "misoginia", c("Raramente", "Às vezes", "Frequentemente", "Sempre")), "pct"), "warning"),
+    cx("Nunca/raramente fazem pausas",
+       vb(pct_em(d, "pausas", c("Nunca", "Raramente")), "pct"), "warning"),
+    cx("Trabalham além da jornada", vb(pct_em(d, "jornadaa", "Sim"), "pct"), "warning"),
+    cx("Pressão para bater metas",
+       vb(pct_em(d, "pressao", c("Sempre")), "pct"), "warning"),
+    cx("Igualdade de oportunidades",
+       vb(pct_em(d, "igualdadeoportunidades", c("Sempre")), "pct"), "danger")
+    ))
+})
+
+output$kpi_nocividades <- renderUI({
+  d <- dados_f()
+  linha_kpi(list(
+    cx("Índice de nocividades", vb(mean(d$idx_riscos, na.rm = TRUE), "num"), "danger"),
+    cx("Poeira mineral",
+       vb(pct_em(d, "poeiramienral", c("Frequentemente", "Sempre")), "pct"), "danger"),
+    cx("Ruídos",
+       vb(pct_em(d, "ruidos", c("Frequentemente", "Sempre")), "pct"), "danger"),
+    cx("Ritmo acelerado",
+       vb(pct_em(d, "acelerado", c("Frequentemente", "Sempre")), "pct"), "danger"),
+    cx("Calor",
+       vb(pct_em(d, "temperatura", c("Frequentemente", "Sempre")), "pct"), "danger"),
+    cx("Particulados",
+       vb(pct_em(d, "projecao", c("Frequentemente", "Sempre")), "pct"), "danger"),
+    cx("Desníveis",
+       vb(pct_em(d, "desniveis", c("Frequentemente", "Sempre")), "pct"), "danger")
+  ))
+})
+
+output$kpi_acidentes <- renderUI({
+  d <- dados_f()
+  linha_kpi(list(
+    cx("Ir trabalhar doente",
+       vb(pct_em(d, "irdoente", c("Sim, porque tenho que ir trabalhar",
+                   "Sim, porque fui convocado/a")), "pct"), "danger"),
+    cx("Uso contínuo de medicamentos ao iniciar trabalho", vb(pct_em(d, "motivo_uso", "Passei a usar depois de entrar na mina/usina"), "pct"), "warning"),
+    cx("Emissão de CAT",
+       vb(pct_em(d, "cat", c("Não")), "pct"), "danger"),
+    cx("Presenciar Acidentes de Trabalho",
+       vb(pct_em(d, "presenciar", c("Às vezes", "Frequentemente", "Sempre")), "pct"), "warning"),
+    cx("Esgotamento físico e/ou mental",
+       vb(pct_marcou(d, "sinais", c(13, 14)), "pct"), "danger"),
+    cx("Sinais por operário/a (mediana)",
+       vb(stats::median(d$n_sinais[d$respondeu_sinais], na.rm = TRUE), "int")),
+    cx("Trabalho e início de uso de drogas", vb(pct_em(d, "usodrogastrabalho", "Sim, contribuiu para o início do uso"), "pct"))
+  ))
+})
+
+output$kpi_saude <- renderUI({
+  d <- dados_f()
+  linha_kpi(list(
+    cx("Saúde piorou no último ano",
+       vb(pct_em(d, "saude_antes", "Ficou pior"), "pct"), "warning"),
+    cx("Saúde ruim ou péssima",
+       vb(pct_em(d, "saude", c("Ruim", "Péssima")), "pct"), "danger"),
+    cx("Moradia regular",
+       vb(pct_em(d, "moradia", c("Regular")), "pct"), "warning"),
+    cx("Sono ruim",
+       vb(pct_em(d, "sono", c("Ruim")), "pct"), "warning"),
+    cx("Horas semanais para cuidados em saúde",
+       vb(stats::median(d$horas_cuidado_saude, na.rm = TRUE), "int"))
+  ))
+})
+
+output$kpi_vida <- renderUI({
+  d <- dados_f()
+  linha_kpi(list(
+    cx("Sindicato contribui para mudar a situação de saúde operária", vb(pct_em(d, "contribuicao", "Sim"), "pct")),
+    cx("Sindicalizados/as respondentes", vb(pct_em(d, "sindical", "Sim"), "pct"), "danger"),
+    cx("Conhecem a Secretaria de Saúde e Segurança do Sindicato", vb(pct_em(d, "diretoria", "Sim"), "pct"), "danger"),
+    cx("Avaliação positiva da enquete",
+       vb(pct_em(d, "avaliacao", c("Muito bom", "Bom")), "pct"))
+  ))
+})
+
+# ==========================================================================
+# 3. Gráficos — mesma chamada do painel estático, com dados_f() no lugar de base
+# ==========================================================================
+
+graficos <- list(
+
+  # Panorama --------------------------------------------------------------
+  g_serie        = function() graf_serie(dados_f()),
+  g_genero       = function() graf_barras(dados_f(), "genero", cor = CORES$frio),
+  g_raca         = function() graf_barras(dados_f(), "raca", cor = CORES$frio),
+  g_faixa_etaria = function() graf_barras(dados_f(), "faixa_etaria",
+                                          cor = CORES$frio, ordenar = FALSE),
+  g_idade        = function() graf_numerico(dados_f(), "idade", binwidth = 5,
+                                            eixo_x = "Idade em anos", cor = CORES$frio),
+  g_osexual      = function() graf_barras(dados_f(), "osexual", cor = CORES$frio),
+  g_municipio    = function() graf_barras(dados_f(), "municipio", cor = CORES$frio),
+  g_deslocamento = function() graf_barras(dados_f(), "deslocamento",
+                                          cor = CORES$frio, ordenar = FALSE),
+  g_empresa      = function() graf_barras(dados_f(), "empresa", cor = CORES$frio),
+  g_setor        = function() graf_barras(dados_f(), "setor", cor = CORES$frio),
+  g_vinculo      = function() graf_barras(dados_f(), "vinculo", cor = CORES$frio),
+  g_tempo_min    = function() graf_numerico(dados_f(), "anos_mineracao", binwidth = 3,
+                                            eixo_x = "Anos na mineração", cor = CORES$frio),
+  g_perder          = function() graf_barras(dados_f(), "perder", cor = CORES$frio),
+
+  # Salário e benefícios --------------------------------------------------
+  g_fin_empresa = function() graf_cruzamento(dados_f(), "empresa", "situacaofi",
+                                             cores_base = CORES_FREQ_NEG),
+  g_remuneracao = function() graf_100(tab_categorias(dados_f(), BLOCOS$remuneracao),
+                                      cores_base = CORES_RUIM_BOM,
+                                      ordenar_por = c("Muito ruim", "Ruim")),
+  g_gestao      = function() graf_100(tab_categorias(dados_f(), BLOCOS$gestao),
+                                      cores_base = CORES_RUIM_BOM,
+                                      ordenar_por = c("Muito ruim", "Ruim")),
+  g_situacaofi  = function() graf_barras(dados_f(), "situacaofi",
+                                         cor = CORES$frio, ordenar = FALSE),
+  g_renda       = function() graf_barras(dados_f(), "renda", cor = CORES$frio),
+  g_emprestimo  = function() graf_barras(dados_f(), "emprestimo", cor = CORES$frio),
+
+  # Processos de trabalho -------------------------------------------------
+  g_condicoes   = function() graf_100(tab_categorias(dados_f(), BLOCOS$condicoes),
+                                      cores_base = CORES_RUIM_BOM,
+                                      ordenar_por = c("Muito ruim", "Ruim")),
+  g_cargas      = function() graf_100(tab_categorias(dados_f(), BLOCOS$cargas),
+                                      cores_base = CORES_FREQ_NEG,
+                                      ordenar_por = c("Frequentemente", "Sempre")),
+  g_tecnologia   = function() graf_100(tab_categorias(dados_f(), BLOCOS$tecnologia),
+                                       cores_base = CORES_FREQ_NEG,
+                                       ordenar_por = c("Frequentemente", "Sempre")),
+  g_jornada     = function() graf_barras(dados_f(), "jornada", cor = CORES$frio),
+  g_modalidade  = function() graf_barras(dados_f(), "modalidade", cor = CORES$frio),
+  g_jornadasim  = function() graf_multi(tab_multi(dados_f(), "jornadasim"),
+                                        cor = CORES$frio),
+
+  # Relações de trabalho e violências -------------------------------------
+  g_violencias    = function() graf_100(tab_categorias(dados_f(), BLOCOS$violencias),
+                                        cores_base = CORES_FREQ_NEG,
+                                        ordenar_por = c("Às vezes", "Frequentemente",
+                                                        "Sempre")),
+  g_trato         = function() graf_100(tab_categorias(dados_f(), BLOCOS$trato),
+                                        cores_base = CORES_FREQ_NEG,
+                                        ordenar_por = c("De forma inadequada",
+                                                        "De forma abusiva",
+                                                        "Com assédio")),
+  g_clima         = function() graf_100(tab_categorias(dados_f(), BLOCOS$clima),
+                                        cores_base = CORES_FREQ_POS,
+                                        ordenar_por = c("Nunca", "Raramente")),
+  g_clima_empresa = function() graf_indice_grupo(dados_f(), "idx_clima", "empresa",
+                                                 cor = CORES$destaque,
+                                                 rotulo_indice = "Clima (0–100)"),
+  g_viol_genero   = function() graf_indice_grupo(dados_f(), "idx_violencias", "genero",
+                                                 cor = CORES$alerta,
+                                                 rotulo_indice = "Violências (0–100)"),
+  g_viol_raca     = function() graf_indice_grupo(dados_f(), "idx_violencias", "raca",
+                                                 cor = CORES$alerta,
+                                                 rotulo_indice = "Violências (0–100)"),
+
+  # Nocividades -----------------------------------------------------------
+  g_riscos_100     = function() graf_100(tab_categorias(dados_f(), BLOCOS$riscos_amb),
+                                         cores_base = CORES_FREQ_NEG,
+                                         ordenar_por = c("Frequentemente", "Sempre")),
+  g_rank_riscos    = function() graf_ranking(tab_categorias(dados_f(),
+                                                            BLOCOS$riscos_amb),
+                                             c("Frequentemente", "Sempre")),
+  g_riscos_setor   = function() graf_indice_grupo(dados_f(), "idx_riscos", "setor",
+                                                  cor = CORES$frio,
+                                                  rotulo_indice = "Nocividades (0–100)"),
+
+  # Acidentes e Adoecimentos ----------------------------------------------
+  g_comunicacid    = function() graf_barras(dados_f(), "comunicacid", cor = CORES$frio),
+  g_cat            = function() graf_barras(dados_f(), "cat", cor = CORES$frio,
+                                            subtitulo = "Base: quem relatou acidente"),
+  g_epi            = function() graf_100(tab_categorias(dados_f(),
+                                                        c("presenciar")),
+                                         cores_base = CORES_FREQ_POS,
+                                         ordenar_por = c("Nunca", "Raramente")),
+  g_sinais        = function() graf_multi(tab_multi(dados_f(), "sinais", excluir = 24),
+                                          cor = CORES$frio),
+  g_nsinais       = function() graf_numerico(dplyr::filter(dados_f(), respondeu_sinais),
+                                             "n_sinais", binwidth = 1,
+                                             cor = CORES$frio,
+                                             eixo_x = "Sinais/sintomas marcados"),
+  g_morbidades    = function() graf_multi(tab_multi(dados_f(), "morbidades",
+                                                    excluir = 19), cor = CORES$frio),
+  g_irdoente      = function() graf_barras(dados_f(), "irdoente", cor = CORES$frio),
+  g_motivo_uso    = function() graf_barras(dados_f(), "motivo_uso", cor = CORES$frio,
+                                           subtitulo = "Base: uso contínuo de medicamentos"),
+  g_alcool        = function() graf_100(tab_categorias(dados_f(),
+                                                       c("usoalcool",
+                                                         "drogasoperarios")),
+                                        cores_base = CORES_FREQ_NEG,
+                                        ordenar_por = c("Frequentemente", "Sempre")),
+  g_usodrogastrab = function() graf_barras(dados_f(), "usodrogastrabalho",
+                                           cor = CORES$frio),
+  g_afastamentos  = function() graf_barras(dados_f(), "afastamentos", cor = CORES$frio),
+  g_saudetrab     = function() graf_barras(dados_f(), "saudetrab", cor = CORES$frio),
+
+  # Saúde -----------------------------------------------------------------
+  g_saude_antes   = function() graf_barras(dados_f(), "saude_antes",
+                                           cor = CORES$frio, ordenar = FALSE),
+  g_saude_unica         = function() graf_100(tab_categorias(dados_f(),
+                                                       c("saude")),
+                                        cores_base = CORES_FREQ_NEG,
+                                        ordenar_por = c("Ruim", "Péssima")),
+  g_saude         = function() graf_100(tab_categorias(dados_f(),
+                                                       c("sono",
+                                                         "alimentacao", "moradia")),
+                                        cores_base = CORES_FREQ_NEG,
+                                        ordenar_por = c("Ruim", "Péssima")),
+  g_estrategias   = function() graf_multi(tab_multi(dados_f(), "estrategias",
+                                                    excluir = 13), cor = CORES$frio),
+  g_horas_cuidado = function() graf_numerico(dados_f(), "horas_cuidado_saude",
+                                             binwidth = 2, cor = CORES$frio,
+                                             eixo_x = "Horas por semana"),
+  g_cuidado        = function() graf_100(tab_categorias(dados_f(),
+                                                        setdiff(BLOCOS$cuidado_vida,
+                                                                "jornadacuidado")),
+                                         cores_base = CORES_CUIDADO,
+                                         ordenar_por = c("Eu faço sozinho/a",
+                                                         "Eu faço a maior parte")),
+  g_casa_genero    = function() graf_cruzamento(dados_f(), "genero", "cuidadocasa",
+                                                cores_base = CORES_CUIDADO),
+  g_filhos_genero  = function() graf_cruzamento(dados_f(), "genero", "filhos",
+                                                cores_base = CORES_CUIDADO),
+  g_jornadacuidado = function() graf_barras(dados_f(), "jornadacuidado",
+                                            cor = CORES$frio),
+  g_saudeocup     = function() graf_100(tab_categorias(dados_f(),
+                                                       c("previnstitucional",
+                                                         "periodicos")),
+                                        cores_base = CORES_FREQ_NEG,
+                                        ordenar_por = c("Insuficiente", "Inexistente")),
+
+  # Luta sindical ---------------------------------------------------------
+  g_sindical       = function() graf_barras(dados_f(), "sindical", cor = CORES$frio),
+  g_avaliacao      = function() graf_barras(dados_f(), "avaliacao", cor = CORES$frio,
+                                            ordenar = FALSE),
+  g_diretoria = function() graf_barras(dados_f(), "diretoria", cor = CORES$frio),
+  g_contribuicao = function() graf_barras(dados_f(), "contribuicao", cor = CORES$frio)
+)
+
+for (nm in names(graficos)) {
+  local({
+    id <- nm
+    f  <- graficos[[nm]]
+    output[[id]] <- plotly::renderPlotly(f())
+  })
+}
+
+
+# ==========================================================================
+# 4. Tabelas e notas
+# ==========================================================================
+
+output$t_micro <- DT::renderDT({
+  cols <- c("record_id", "empresa", "setor", "vinculo", "jornada", "genero",
+            "raca", "faixa_etaria", "faixa_tempo", "municipio", "saude",
+            "esgotamento", "assediomoral", "idx_riscos", "idx_cargas",
+            "idx_violencias", "idx_clima", "idx_condicoes", "idx_saude",
+            "n_sinais", "n_morbidades", "enquete_complete")
+  dados_f() |>
+    dplyr::select(dplyr::any_of(cols)) |>
+    dplyr::mutate(dplyr::across(dplyr::starts_with("idx_"),
+                                function(x) round(x, 1))) |>
+    tabela_dt(pagina = 15, filter = "top")
+})
+
+
+output$notas <- renderUI({
+  htmltools::HTML(sprintf('
+<p><strong>Fonte.</strong> Exportação REDCap <code>%s</code>. Período de coleta: %s.
+Base total: %d participantes que aceitaram participar.</p>
+<p><strong>Filtros.</strong> Os recortes da barra lateral se aplicam a todos os
+gráficos e tabelas ao mesmo tempo. Recortes com menos de 20 casos produzem
+percentuais muito instáveis — o contador da barra lateral fica vermelho nessa
+situação.</p>
+<p><strong>Denominadores.</strong> Todos os percentuais excluem não respostas e
+cada gráfico informa o n válido do item. Respostas "Não sei", "Não conheço" e
+"Não recebo" aparecem em cinza e são tratadas como ausentes nos índices.</p>
+<p><strong>Índices 0–100.</strong> Média dos itens do bloco, calculada apenas
+para quem respondeu ao menos metade deles. Em clima, condições, remuneração e
+saúde percebida, valores altos indicam situação melhor; em riscos, cargas,
+violências e efeitos negativos da tecnologia, valores altos indicam situação
+pior.</p>
+<p><strong>Cuidado.</strong> Amostra por adesão: os resultados descrevem quem
+respondeu, não o conjunto da categoria. As comparações entre grupos exibem
+apenas categorias com n ≥ 5.</p>',
+    meta$arquivo, meta$periodo, meta$n_base))
+})
+```

@@ -1,0 +1,11 @@
+name: dashboard-novo
+title:
+username: brunobechara
+account: brunobechara
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 01a215d5-1479-a5e1-38a8-1c091a9e67f0
+appGuid:
+bundleId:
+url: https://connect.posit.cloud/brunobechara/content/01a215d5-1479-a5e1-38a8-1c091a9e67f0
+version: 1

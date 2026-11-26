@@ -1,0 +1,9 @@
+format:
+  dashboard:
+    orientation: rows
+    scrolling: true
+    expandable: true
+    theme: cosmo
+
+server: shiny
+lang: pt
